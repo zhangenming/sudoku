@@ -1,0 +1,16 @@
+{
+  "name": "vites",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "sass": "^1.26.8",
+    "vue": "^3.0.0-beta.14"
+  },
+  "devDependencies": {
+    "vite": "^0.17.0",
+    "@vue/compiler-sfc": "^3.0.0-beta.14"
+  }
+}
