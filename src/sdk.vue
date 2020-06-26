@@ -1,22 +1,21 @@
 <template>
   <div>
     <div class="main">
-      <div class="squre" v-for="squre in 9" :key="squre">
+      <div class="S" v-for="S in A90" :key="S">
         <div
-          @mouseover="itemClick"
           class="item"
-          v-for="index in 9"
-          :class="doubleCache[squre-1][index-1].classItem(clickSameValue)"
-          :key="index"
+          @mouseover="itemMouse"
+          @click="itemClick(S,I)"
+          v-for="I in A90"
+          :class="[ XX[S][I].classItem, hoverValue.x === XX[S][I].value && 'selected' ]"
+          :key="I"
         >
-          <span
-            v-if="doubleCache[squre-1][index-1].value !== NEEDRESOLVE"
-          >{{doubleCache[squre-1][index-1].value}}</span>
+          <span v-if="XX[S][I].value !== NEEDRESOLVE">{{XX[S][I].value}}</span>
           <div
             class="maybe"
             v-else
-            v-for="maybe in 9"
-            :class="doubleCache[squre-1][index-1].classMaybe"
+            v-for="maybe in A91"
+            :class="[ XX[S][I].classMaybe,  hoverValue.x === ''+maybe && 'selected']"
             :key="maybe"
           >{{maybe}}</div>
         </div>
@@ -24,9 +23,9 @@
     </div>
 
     <div class="main">
-      <div class="squre" v-for="squre in 9" :key="squre">
-        <div class="item" v-for="index in 9" :key="index">
-          <span>{{squre-1}}{{index-1}}</span>
+      <div class="S" v-for="S in A90" :key="S">
+        <div class="item" v-for="I in A90" :key="I">
+          <span>{{S}}{{I}}</span>
         </div>
       </div>
     </div>
@@ -35,18 +34,18 @@
 
   <!-- {{eval('debugger') /*a way for debug*/}} -->
         <!--         
-        :classs="double3(squre, index, clickSameValue).classItem"
-        :classss="double(squre, index, ).classItem(clickSameValue)"
-        :classx="doubles(squre, index, ).classItem"-->
+        :classs="double3(S, I, hoverValue).classItem"
+        :classss="double(S, I, ).classItem(hoverValue)"
+        :classx="doubles(S, I, ).classItem"-->
 
-        <!-- <no style="display:none">{{dbg = double(squre, index,)}}</no> -->
+        <!-- <no style="display:none">{{dbg = double(S, I,)}}</no> -->
        
 <style lang="scss" >
 .main {
   display: flex;
   flex-wrap: wrap;
   width: 420px;
-  .squre {
+  .S {
     width: 120px;
     margin: 5px;
     display: flex;
@@ -70,6 +69,7 @@
       justify-content: center;
       align-items: center;
       background: #eee;
+      // transition: all 0.1s;
       &:hover,
       &.canSolve:hover,
       &.needSolve:hover {
@@ -87,8 +87,12 @@
       .maybe {
         font-size: 11px;
         width: 33%;
+        height: 33%;
         text-align: center;
         visibility: hidden;
+        &.selected {
+          background: #aea;
+        }
         &.m1 {
           &:nth-of-type(1) {
             visibility: inherit;
@@ -141,61 +145,61 @@
 </style>
 <script>
 import { reactive, ref } from "vue";
-import { NEEDRESOLVE, double, doubleCache, double3, RES } from "./sdk.js";
+import {
+  NEEDRESOLVE,
+  doubleCache as XX,
+  RES,
+  A90,
+  A91,
+  pos2index,
+  flex2index,
+  index2flex,
+  index2pos
+} from "./sdk.js";
 function superSuspend(n) {
   const q = Date.now();
   while (Date.now() - q < n) {}
 }
-// window.ii = 0;
-// setTimeout(() => {
-//   window.ii.ll / 81;
-// }, 99);
+
 export default {
   setup() {
-    let clickSameValue = reactive({ x: 2 });
-    let dbg = ref(1213);
+    let hoverValue = reactive({ x: "" });
+    let dbg = ref(2222);
     let tmp = reactive(2);
     const r = ref(2);
     return {
-      double,
-      doubles,
-      double3,
-      doubleCache,
+      XX,
+      A90,
+      A91,
       NEEDRESOLVE,
-      itemClick,
-      clickSameValue,
+      itemMouse,
+      hoverValue,
       tmp,
       r,
       dbg,
       eval,
-      log: console.log
+      log: console.log,
+      itemClick
     };
 
-    function doubles(squre, index) {
-      window.ii++;
-      // superSuspend(1)
-      //缓存 模板执行太多了
-      //九宫格坐标1+
-      const SOO = RES[`${squre - 1}-${index - 1}`];
-      const value = SOO.value;
-      return {
-        value,
-        classMaybe: SOO.maybe, //vue class数组必须字符串?,
-        classItem: [SOO.classType, { selected: clickSameValue.x === value }]
-      };
-    }
-
-    function itemClick(e) {
+    function itemMouse(e) {
       let x;
       if (e.currentTarget.classList.contains("hasSolve")) {
         x = e.currentTarget.innerText;
       } else {
         x = "";
       }
-      r.value = tmp = clickSameValue.x = x;
+      // r.value = tmp = hoverValue.x = x;
+    }
+    function itemClick(S, I) {
+      const flex = [S, I].ll;
+      const index = flex2index(flex).ll;
+      index2pos[index].ll;
     }
   }
 };
+
+//计算函数执行次数 寻找可以空间换时间函数  比较两次策略性能
 //手动打孔 增加难度?
 const tttt = [
   [2, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -208,4 +212,18 @@ const tttt = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [3, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
+
+// if (0) asas//不报错??
+
+//全部以index为中介
+
+//缓存 模板执行太多了
+// 行格排除  行数排除
+// 数排除  数确定只能在某个格
+// 格排除  这个格只能填这个数
+
+//可以缓存的根本原因是参数有限固定, 预先执行
+//考虑底层不缓存  最上层抽象
+//考虑使用es6+ |>符号
 </script>
+
