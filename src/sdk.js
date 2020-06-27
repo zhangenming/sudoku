@@ -1,3 +1,4 @@
+console.clear()
 export const NEEDRESOLVE = "0"
 export const A90 = [...Array(9)].map((_, i) => i)
 export const A91 = [...Array(9)].map((_, i) => i + 1)
@@ -5,7 +6,7 @@ export const A91 = [...Array(9)].map((_, i) => i + 1)
 const A81 = [...Array(81)].map((_, i) => i)
 const A3 = [...Array(3)].map((_, i) => i)
 const STR =
-  "030000000004701002028600009000317000081094200000000040000800000000060507300005800"
+  "810003290067000000900500006000408000604000809000209000700001008000000370053800042"
 //手动打孔 增加难度?
 const VALUE_4Hang = (window.VALUE_4Hang = string2map() || [
   [2, 1, 6, 0, 8, 0, 9, 5, 7],
@@ -111,48 +112,101 @@ export function merge() {
   )
   check()
   AllItem()
-  AllNum()
+  // AllNum()
+}
+AllItem()
+// AllNum()
+
+function RS3(params) {
+  // 位置->可能的数  ===>>  数->可能的位置
+  //很多数据基于依赖于数组位置, filter的时候位置信息会丢失, 改进数据结构
+  VALUE_4Area_ITEM[4].ll.reduce((all, now, i) => {
+    now.maybe.map(mb => {
+      all[mb] || (all[mb] = [])
+      all[mb].push(i)
+    })
+    return all
+  }, {}).ll
+  VALUE_4Area_ITEM[4].ll.reduce((all, now, i) => {
+    now.maybe.map(mb => {
+      all[mb] || (all[mb] = [])
+      all[mb].push(i)
+    })
+    return all
+  }, []).ll
+  VALUE_4Area_ITEM[4].reduce(
+    (all, now, i) => {
+      now.maybe.map(mb => {
+        all[mb].push(i)
+      })
+      return all
+    },
+    [...Array(10)].map(() => [])
+  ).ll
+
+  //最开始写的逻辑 第一次map毫无用处 当时为什么写呢 要做这次map
+
+  // VALUE_4Area_ITEM[4].ll
+  //   .map((e, index) => {
+  //     const mb = e.maybe
+  //     const va = e.value
+  //     return {
+  //       mb,
+  //       va,
+  //       index,
+  //     }
+  //   })
+  //   .ll.reduce((all, now, index) => {
+  //     now.mb.map(n => {
+  //       all[n] || (all[n] = [])
+  //       all[n].push(index)
+  //     })
+  //     return all
+  //   }, {}).ll
+}
+
+function RS(data, way) {
+  data.map(way)
 }
 export function HangNum() {
-  VALUE_4Hang_ITEM.map(resolveForNumAdvance)
+  RS(VALUE_4Hang_ITEM, resolveForNumAdvance)
 }
 
 export function LieNum() {
-  VALUE_4Lie_ITEM.map(resolveForNumAdvance)
+  RS(VALUE_4Lie_ITEM, resolveForNumAdvance)
 }
 
 export function AreaNum() {
-  VALUE_4Area_ITEM.map(resolveForNumAdvance)
+  RS(VALUE_4Area_ITEM, resolveForNumAdvance)
 }
 export function AllNum() {
-  VALUE_4Hang_ITEM.map(resolveForNumAdvance)
-  VALUE_4Lie_ITEM.map(resolveForNumAdvance)
-  VALUE_4Area_ITEM.map(resolveForNumAdvance)
+  AllItem() //基础 依赖于
+  RS(
+    [...VALUE_4Hang_ITEM, ...VALUE_4Lie_ITEM, ...VALUE_4Area_ITEM],
+    resolveForNumAdvance
+  )
 }
 
 export function HangItem() {
-  VALUE_4Hang_ITEM.map(resolveForItemBase)
+  RS(VALUE_4Hang_ITEM, resolveForItemBase)
 }
 export function LieItem() {
-  VALUE_4Lie_ITEM.map(resolveForItemBase)
+  RS(VALUE_4Lie_ITEM, resolveForItemBase)
 }
 export function AreaItem() {
-  VALUE_4Area_ITEM.map(resolveForItemBase)
+  RS(VALUE_4Area_ITEM, resolveForItemBase)
 }
 export function AllItem() {
-  VALUE_4Hang_ITEM.map(resolveForItemBase)
-  VALUE_4Lie_ITEM.map(resolveForItemBase)
-  VALUE_4Area_ITEM.map(resolveForItemBase)
+  RS(
+    [...VALUE_4Hang_ITEM, ...VALUE_4Lie_ITEM, ...VALUE_4Area_ITEM],
+    resolveForItemBase
+  )
 }
 
-AllItem()
-AllNum()
-
 function resolveForNumAdvance(group) {
-  return group
-    .map(item => item.maybe)
+  group
     .reduce((all, now, index) => {
-      now.map(value => {
+      now.maybe.map(value => {
         all.push({
           value,
           index,
@@ -163,7 +217,7 @@ function resolveForNumAdvance(group) {
     .filter(({ value }, _, arr) => {
       return arr.filter(e => e.value === value).length === 1
     })
-    .map(({ value, index }) => {
+    .forEach(({ value, index }) => {
       group[index].resolveByAdcanceValue = value
     })
 }
@@ -185,3 +239,25 @@ function deleteMaybe(arr, target) {
   //25个Ok 56个todoing
 }
 export const index2pos = cacheRunIt(i => [i % 9, Math.floor(i / 9)], A81)
+
+export function exports() {
+  const text = VALUE_4Hang_ITEM_Flat.map(e => e.value).join("")
+  var textarea = document.createElement("textarea")
+  var currentFocus = document.activeElement
+  document.body.appendChild(textarea)
+  textarea.value = text
+  textarea.focus()
+  if (textarea.setSelectionRange) {
+    textarea.setSelectionRange(0, textarea.value.length)
+  } else {
+    textarea.select()
+  }
+  try {
+    var state = document.execCommand("copy")
+  } catch (err) {
+    var state = false
+  }
+  document.body.removeChild(textarea)
+  currentFocus.focus()
+  return state
+}

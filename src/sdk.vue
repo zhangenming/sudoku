@@ -1,5 +1,8 @@
 <template>
   <div class="main">
+    <div>
+      <button @click="exports">导出</button>
+    </div>
     <div class="suduko">
       <div class="squre" v-for="S in [0,1,2,3,4,5,6,7,8]" :key="S">
         <div v-for="I in [0,1,2,3,4,5,6,7,8]" :key="I">
@@ -197,7 +200,8 @@ import {
   AllItem,
   AllNum,
   VALUE_4Hang_ITEM_Flat,
-  merge
+  merge,
+  exports
 } from "./sdk.js";
 window.q = [];
 
@@ -262,7 +266,8 @@ export default {
       flash,
       flashN,
       gene,
-      shortcut
+      shortcut,
+      exports
     };
   }
 };
@@ -310,6 +315,6 @@ function shortcut(e, hoverValue) {
 
 //坐标起始点需要搞清楚
 //需要深刻理解row,col,1+,0+
-//3个问题需要搞清楚 0+/1+? col/row? ''?
+//2个问题需要搞清楚 0+/1+?  ''?
 </script>
 
