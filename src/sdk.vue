@@ -12,19 +12,27 @@
           <!-- <div style="display:none">{{ 33..ll }}</div> -->
           <div
             :class="['item', SUDUKO.clsItem, hoverValue.x === SUDUKO.value && 'selected' ]"
-            @mouseover="e=>itemMouse(e,hoverValue)"
-            @click="itemClick(S,I)"
+            @click="e=>itemClick(e,hoverValue,[S,I])"
           >
             <span v-if="SUDUKO.value !== NEEDRESOLVE">{{SUDUKO.value}}</span>
             <div
               v-else
-              :class="['maybe', SUDUKO.clsMaybe,  hoverValue.x === maybe && 'selected']"
+              :class="[SUDUKO.resolveByAdcanceValue ==  maybe && 'advance',  'maybe', SUDUKO.clsMaybe,  hoverValue.x === maybe && 'selected']"
               v-for="maybe in ['1','2','3','4','5','6','7','8','9']"
               :key="maybe"
             >{{maybe}}</div>
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="shortcut">
+      <div
+        @click="e=>shortcut(e,hoverValue)"
+        v-for="value in ['1','2','3','4','5','6','7','8','9']"
+        :class="{selected: hoverValue.x === value}"
+        :key="value"
+      >{{value}}</div>
     </div>
     <div class="control">
       <button @click="flash(HangItem)">HangItem</button>
@@ -45,6 +53,7 @@
 </template>
 
 <style lang="scss" >
+$canSolveBG: #0ea;
 .main {
   .suduko {
     display: flex;
@@ -76,13 +85,11 @@
         align-items: center;
         background: #eee;
         // transition: all 0.1s;
-        &:hover,
-        &.canSolve:hover,
-        &.needSolve:hover {
-          background: #aea;
+        &:hover {
+          background: #aea !important;
         }
         &.canSolve {
-          background: #0ea;
+          background: $canSolveBG;
         }
         &.needSolve {
           background: #aee;
@@ -97,6 +104,9 @@
           height: 33%;
           text-align: center;
           visibility: hidden;
+          &.advance {
+            background: $canSolveBG;
+          }
           &.selected {
             background: #aea;
           }
@@ -147,6 +157,20 @@
           }
         }
       }
+    }
+  }
+  .shortcut {
+    display: flex;
+    margin: 0 auto;
+    background: #eee;
+    justify-content: space-evenly;
+    flex-direction: row;
+    div {
+      padding: 15px;
+      margin: 2px;
+    }
+    .selected {
+      background: #aea;
     }
   }
   .control {
@@ -210,6 +234,9 @@ export default {
       if (data.maybe.length === 0) {
         var clsItem = "hasSolve";
       }
+      // if (data.resolveByAdcanceValue?.ll) {
+      //   var clsItem = "canSolveByAdvance";
+      // }
       var clsMaybe = data.maybe.map(e => "m" + e);
       return {
         ...data,
@@ -220,7 +247,6 @@ export default {
     return {
       A91,
       NEEDRESOLVE,
-      itemMouse,
       itemClick,
       hoverValue,
       SUDUKO,
@@ -235,21 +261,23 @@ export default {
       merge,
       flash,
       flashN,
-      gene
+      gene,
+      shortcut
     };
   }
 };
-function itemMouse(e, hoverValue) {
+function itemClick(e, hoverValue, [S, I]) {
   if (e.currentTarget.classList.contains("hasSolve")) {
-    // hoverValue.x = e.currentTarget.innerText;
+    hoverValue.x = e.currentTarget.innerText;
   } else {
     hoverValue.x = "";
   }
-}
-function itemClick(S, I) {
   const flex = [S, I].ll;
   const index = flex2index(flex).ll;
   index2pos[index].ll;
+}
+function shortcut(e, hoverValue) {
+  hoverValue.x = e.currentTarget.innerText;
 }
 // if (0) asas//不报错??
 

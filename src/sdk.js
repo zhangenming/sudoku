@@ -5,7 +5,7 @@ export const A91 = [...Array(9)].map((_, i) => i + 1)
 const A81 = [...Array(81)].map((_, i) => i)
 const A3 = [...Array(3)].map((_, i) => i)
 const STR =
-  "010000050200000400040060900092654080060003000835920046000070060020800000400090570"
+  "030000000004701002028600009000317000081094200000000040000800000000060507300005800"
 //手动打孔 增加难度?
 const VALUE_4Hang = (window.VALUE_4Hang = string2map() || [
   [2, 1, 6, 0, 8, 0, 9, 5, 7],
@@ -19,39 +19,36 @@ const VALUE_4Hang = (window.VALUE_4Hang = string2map() || [
   [3, 2, 5, 0, 7, 0, 4, 8, 1],
 ])
 
-const VALUE_4Hang_ITEM = VALUE_4Hang.map(hang =>
+export const index2flex = A3.map(y =>
+  A3.map(x => A3.map(l => A3.map(r => [l + y * 3, r + x * 3])))
+)
+  .flat(3)
+  .map(e => "" + e)
+const AreaNum2AreaItems = A90.map(squre =>
+  A90.map(index => {
+    return flex2index([squre, index])
+  })
+)
+
+const VALUE_4Hang_ITEM = (window.sdk = VALUE_4Hang.map(hang =>
   hang
     .map(e => "" + e)
     .map(value => ({
       value,
       maybe: value === NEEDRESOLVE ? [...A91].map(e => "" + e) : [],
     }))
-)
-window.s = VALUE_4Hang_ITEM
-
-export const index2pos = cacheRunIt(i => [i % 9, Math.floor(i / 9)], A81)
-
-export const index2flex = A3.map(y =>
-  A3.map(x => A3.map(l => A3.map(r => [l + y * 3, r + x * 3])))
-)
-  .flat(3)
-  .map(e => "" + e)
-
-export const flex2index = ([squre, index]) =>
-  index2flex.findIndex(e => e === `${squre},${index}`)
+))
 export const VALUE_4Hang_ITEM_Flat = VALUE_4Hang_ITEM.flat()
 const VALUE_4Lie_ITEM = row2col(VALUE_4Hang_ITEM)
-
-const AreaNum2AreaItems = A90.map(squre =>
-  A90.map(index => {
-    return flex2index([squre, index])
-  })
-)
 const VALUE_4Area_ITEM = AreaNum2AreaItems.map(area =>
   area.map(index => {
     return VALUE_4Hang_ITEM_Flat[index]
   })
 )
+
+export function flex2index([squre, index]) {
+  return index2flex.findIndex(e => e === `${squre},${index}`)
+}
 
 function row2col(row) {
   return A90.map(x => A90.map(y => row[y][x]))
@@ -106,10 +103,15 @@ export function merge() {
         item.value = item.maybe[0]
         item.maybe = []
       }
+      if (item.resolveByAdcanceValue) {
+        item.value = item.resolveByAdcanceValue
+        item.maybe = []
+      }
     })
   )
   check()
   AllItem()
+  AllNum()
 }
 export function HangNum() {
   VALUE_4Hang_ITEM.map(resolveForNumAdvance)
@@ -144,7 +146,8 @@ export function AllItem() {
 }
 
 AllItem()
-resolveForNumAdvance(VALUE_4Area_ITEM[3]).ll
+AllNum()
+
 function resolveForNumAdvance(group) {
   return group
     .map(item => item.maybe)
@@ -159,6 +162,9 @@ function resolveForNumAdvance(group) {
     }, [])
     .filter(({ value }, _, arr) => {
       return arr.filter(e => e.value === value).length === 1
+    })
+    .map(({ value, index }) => {
+      group[index].resolveByAdcanceValue = value
     })
 }
 
@@ -178,3 +184,4 @@ function deleteMaybe(arr, target) {
   return arr
   //25个Ok 56个todoing
 }
+export const index2pos = cacheRunIt(i => [i % 9, Math.floor(i / 9)], A81)
