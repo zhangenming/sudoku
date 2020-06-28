@@ -1,0 +1,115 @@
+console.clear()
+console.time()
+const A3 = [...Array(3).keys()]
+const A9 = [...Array(9).keys()]
+const A9from1 = [...A9].map(e => e + 1)
+
+const index2flex = A3.map(y =>
+  A3.map(x => A3.map(l => A3.map(r => [l + y * 3, r + x * 3])))
+)
+  .flat(3)
+  .map(e => "" + e)
+
+function hang2lie(row) {
+  return A9.map(x => A9.map(y => row[y][x]))
+}
+function hang2area(hang) {
+  const flat = hang.flat()
+  return A9.map(squre =>
+    A9.map(index => {
+      const i = flex2index([squre, index])
+      return flat[i]
+    })
+  )
+}
+function flex2index([squre, index]) {
+  return index2flex.findIndex(e => e === `${squre},${index}`)
+}
+export function hasRS(item) {
+  return !Array.isArray(item.ItemMayBeValue)
+}
+export function needRS(item) {
+  return Array.isArray(item.ItemMayBeValue)
+}
+function string2value() {
+  return (
+    STR &&
+    STR.split("").reduce((all, now, index) => {
+      const n = Math.floor(index / 9)
+      all[n] || (all[n] = [])
+      all[n].push(Number(now))
+      return all
+    }, [])
+  )
+}
+function merge() {
+  SDK.map(e =>
+    e.map(e => {
+      if (e.ItemMayBeValue.length === 1) {
+        e.ItemMayBeValue = e.ItemMayBeValue[0]
+      }
+    })
+  )
+  runBasic()
+}
+
+const STR =
+  "810003290067000000900500006000408000604000809000209000700001008000000370053800042"
+
+const VALUE = string2value(STR) || [
+  [2, 1, 6, 0, 8, 0, 9, 5, 7],
+  [7, 8, 9, 0, 1, 0, 0, 0, 3],
+  [5, 4, 0, 2, 9, 7, 0, 1, 6],
+  [6, 7, 0, 0, 3, 5, 0, 9, 4],
+  [4, 0, 8, 9, 6, 1, 7, 0, 5],
+  [9, 5, 0, 0, 4, 2, 0, 6, 8],
+  [1, 6, 0, 4, 2, 8, 0, 3, 9],
+  [0, 9, 4, 0, 5, 0, 0, 0, 2],
+  [3, 2, 5, 0, 7, 0, 4, 8, 1],
+]
+
+export const SDK = VALUE.map((e, H) =>
+  e.map((value, L) => {
+    return {
+      ItemMayBeValue: value === 0 ? [...A9from1] : value,
+      H,
+      L,
+    }
+  })
+).ll
+
+const SDK_HANG = (window.SDK = SDK)
+const SDK_LIE = hang2lie(SDK_HANG)
+export const SDK_AREA = hang2area(SDK_HANG)
+
+function basicRS(sdk) {
+  sdk.map(group =>
+    group.filter(hasRS).map(({ ItemMayBeValue }) =>
+      group.filter(needRS).map(item => {
+        const index = item.ItemMayBeValue.indexOf(ItemMayBeValue)
+        index != -1 && item.ItemMayBeValue.splice(index, 1)
+      })
+    )
+  )
+}
+
+function runBasic() {
+  basicRS([...SDK_HANG, ...SDK_LIE, ...SDK_AREA])
+  //吃惊 就这?  这就完了?  我3天 72小时就写了点这???
+  //第一次有这种体验  是原来的代码太差吗?  有时间了重写看看之前的代码 理清楚思路
+  //重写的过程中以及结束后为什么没有遇到字符串转换问题 包括row/col;x/y;hang/lie问题; 数组起点0+/1+问题
+  //数组结构丢失位置信息
+}
+
+runBasic() //默认执行
+// merge()
+// merge()
+// merge()
+// merge()
+window.merge = merge
+console.timeEnd()
+
+// 基本值的求值思路
+// 1,遍历所有的已知格, 排除未知格里的值
+// 2,遍历所有的未知格，用附近已知格排除自己格里的值
+// 哪个性能好 ?
