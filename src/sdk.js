@@ -1,10 +1,10 @@
 console.clear()
 export const NEEDRESOLVE = "0"
-export const A90 = [...Array(9)].map((_, i) => i)
+export const A90 = [...Array(9).keys()]
 export const A91 = [...Array(9)].map((_, i) => i + 1)
 
-const A81 = [...Array(81)].map((_, i) => i)
-const A3 = [...Array(3)].map((_, i) => i)
+const A81 = [...Array(81).keys()]
+const A3 = [...Array(3).keys()]
 const STR =
   "810003290067000000900500006000408000604000809000209000700001008000000370053800042"
 //手动打孔 增加难度?
@@ -31,16 +31,24 @@ const AreaNum2AreaItems = A90.map(squre =>
   })
 )
 
-const VALUE_4Hang_ITEM = (window.sdk = VALUE_4Hang.map(hang =>
+// const newSudoku = VALUE_4Hang.flat().map((value,index) => {
+//   return {
+//     fromCell:1,
+//     value: "" + value === NEEDRESOLVE ? [...A91].map(e => "" + e) : "" + value,
+//   }
+// })
+const VALUE_4Hang_ITEM = (window.sdk = VALUE_4Hang.map((hang, Hang) =>
   hang
     .map(e => "" + e)
-    .map(value => ({
+    .map((value, Liee) => ({
       value,
       maybe: value === NEEDRESOLVE ? [...A91].map(e => "" + e) : [],
+      Hang: Hang,
+      Liee: Liee,
     }))
 ))
 export const VALUE_4Hang_ITEM_Flat = VALUE_4Hang_ITEM.flat()
-const VALUE_4Lie_ITEM = row2col(VALUE_4Hang_ITEM)
+const VALUE_4Lie_ITEM = row2col(VALUE_4Hang_ITEM).ll
 const VALUE_4Area_ITEM = AreaNum2AreaItems.map(area =>
   area.map(index => {
     return VALUE_4Hang_ITEM_Flat[index]
@@ -112,29 +120,104 @@ export function merge() {
   )
   check()
   AllItem()
-  // AllNum()
+  AllNum()
 }
-AllItem()
+// AllItem()
 // AllNum()
 
+merge()
+merge()
+merge()
+merge()
+merge()
+merge()
+merge()
+window.group = VALUE_4Area_ITEM[1]
+window.func = () => getAll(VALUE_4Area_ITEM[1])
+window.func()
+function getAll(group) {
+  return group.reduce((all, now, index) => {
+    now.maybe.map(mb => {
+      var target = all.find(e => e.mb === mb)
+      if (target) {
+        target.index.push(index)
+      } else {
+        all.push({
+          mb,
+          index: [index],
+        })
+      }
+    })
+    return all
+  }, [])
+}
+
+function partRS3(arr) {
+  const rs3s = [
+    { key: [0, 1, 2], info: { value: 1, type: "X" } },
+    { key: [3, 4, 5], info: { value: 2, type: "X" } },
+    { key: [6, 7, 8], info: { value: 3, type: "X" } },
+    { key: [0, 3, 6], info: { value: 1, type: "Y" } },
+    { key: [1, 4, 7], info: { value: 2, type: "Y" } },
+    { key: [2, 5, 8], info: { value: 3, type: "Y" } },
+  ]
+  let info
+  const bol = rs3s.some(rs3 => {
+    const result = arr.every(e => rs3.key.includes(e))
+    result && (info = rs3.info)
+    return result
+  })
+  return {
+    bol,
+    info,
+  }
+}
+
+VALUE_4Area_ITEM[3]
+  .reduce((all, now, index) => {
+    now.maybe.map(mb => {
+      var target = all.find(e => e.mb === mb)
+      if (target) {
+        target.index.push(index)
+      } else {
+        all.push({
+          mb,
+          index: [index],
+        })
+      }
+    })
+    return all
+  }, [])
+  .ll.map(e => partRS3(e.index)).ll
+
+// VALUE_4Area_ITEM[0].reduce((all, now, index) => {
+//   now.maybe.map(value => {
+//     all.push({
+//       value,
+//       index,
+//     })
+//   })
+//   return all
+// }, [])
+// RS3()
 function RS3(params) {
   // 位置->可能的数  ===>>  数->可能的位置
   //很多数据基于依赖于数组位置, filter的时候位置信息会丢失, 改进数据结构
-  VALUE_4Area_ITEM[4].ll.reduce((all, now, i) => {
+  VALUE_4Area_ITEM[1].reduce((all, now, i) => {
     now.maybe.map(mb => {
       all[mb] || (all[mb] = [])
       all[mb].push(i)
     })
     return all
-  }, {}).ll
-  VALUE_4Area_ITEM[4].ll.reduce((all, now, i) => {
+  }, {})
+  VALUE_4Area_ITEM[1].reduce((all, now, i) => {
     now.maybe.map(mb => {
       all[mb] || (all[mb] = [])
       all[mb].push(i)
     })
     return all
-  }, []).ll
-  VALUE_4Area_ITEM[4].reduce(
+  }, [])
+  VALUE_4Area_ITEM[1].reduce(
     (all, now, i) => {
       now.maybe.map(mb => {
         all[mb].push(i)
@@ -142,11 +225,10 @@ function RS3(params) {
       return all
     },
     [...Array(10)].map(() => [])
-  ).ll
+  )
 
   //最开始写的逻辑 第一次map毫无用处 当时为什么写呢 要做这次map
-
-  // VALUE_4Area_ITEM[4].ll
+  // VALUE_4Area_ITEM[4]
   //   .map((e, index) => {
   //     const mb = e.maybe
   //     const va = e.value
@@ -156,13 +238,13 @@ function RS3(params) {
   //       index,
   //     }
   //   })
-  //   .ll.reduce((all, now, index) => {
+  //   .reduce((all, now, index) => {
   //     now.mb.map(n => {
   //       all[n] || (all[n] = [])
   //       all[n].push(index)
   //     })
   //     return all
-  //   }, {}).ll
+  //   }, {})
 }
 
 function RS(data, way) {

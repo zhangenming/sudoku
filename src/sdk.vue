@@ -4,26 +4,37 @@
       <button @click="exports">导出</button>
     </div>
     <div class="suduko">
-      <div class="squre" v-for="S in [0,1,2,3,4,5,6,7,8]" :key="S">
-        <div v-for="I in [0,1,2,3,4,5,6,7,8]" :key="I">
+      <div class="squre" v-for="S in [0, 1, 2, 3, 4, 5, 6, 7, 8]" :key="S">
+        <div v-for="I in [0, 1, 2, 3, 4, 5, 6, 7, 8]" :key="I">
           <!-- just for local SUDUKO -->
           <!-- <div style="display:none">{{SUDUKO = arrSUDUKO[S][I]}}</div> -->
           <!-- <div style="display:none">{{funcSUDUKO([S,I])}}</div> -->
           <!-- <div style="display:none">{{SUDUKO = gene(arrSUDUKO[S][I])}}</div> -->
-          <div style="display:none">{{SUDUKO = gene([S,I])}}</div>
+          <div style="display: none;">{{ (SUDUKO = gene([S, I])) }}</div>
           <!-- <div style="display:none">{{ (()=>1)().ll }}</div>  -->
           <!-- <div style="display:none">{{ 33..ll }}</div> -->
           <div
-            :class="['item', SUDUKO.clsItem, hoverValue.x === SUDUKO.value && 'selected' ]"
-            @click="e=>itemClick(e,hoverValue,[S,I])"
+            :class="[
+              'item',
+              SUDUKO.clsItem,
+              hoverValue.x === SUDUKO.value && 'selected',
+            ]"
+            @click="e => itemClick(e, hoverValue, [S, I])"
           >
-            <span v-if="SUDUKO.value !== NEEDRESOLVE">{{SUDUKO.value}}</span>
+            <span v-if="SUDUKO.value !== NEEDRESOLVE">{{ SUDUKO.value }}</span>
             <div
               v-else
-              :class="[SUDUKO.resolveByAdcanceValue ==  maybe && 'advance',  'maybe', SUDUKO.clsMaybe,  hoverValue.x === maybe && 'selected']"
-              v-for="maybe in ['1','2','3','4','5','6','7','8','9']"
+              :class="[
+                SUDUKO.resolveByAdcanceValue == maybe && 'advance',
+                'maybe',
+                SUDUKO.clsMaybe,
+                hoverValue.x === maybe && 'selected',
+              ]"
+              v-for="maybe in ['1', '2', '3', '4', '5', '6', '7', '8', '9']"
               :key="maybe"
-            >{{maybe}}</div>
+            >
+              {{ maybe }}
+            </div>
           </div>
         </div>
       </div>
@@ -31,11 +42,13 @@
 
     <div class="shortcut">
       <div
-        @click="e=>shortcut(e,hoverValue)"
-        v-for="value in ['1','2','3','4','5','6','7','8','9']"
-        :class="{selected: hoverValue.x === value}"
+        @click="e => shortcut(e, hoverValue)"
+        v-for="value in ['1', '2', '3', '4', '5', '6', '7', '8', '9']"
+        :class="{ selected: hoverValue.x === value }"
         :key="value"
-      >{{value}}</div>
+      >
+        {{ value }}
+      </div>
     </div>
     <div class="control">
       <button @click="flash(HangItem)">HangItem</button>
@@ -49,13 +62,13 @@
       <button @click="flash(AllNum)">all</button>
       <br />
       <button @click="flash(merge)">merge</button>
-      <span>{{flashN}}</span>
+      <span>{{ flashN }}</span>
     </div>
   </div>
   <!-- visible改成v-show 不占用dom节点? -->
 </template>
 
-<style lang="scss" >
+<style lang="scss">
 $canSolveBG: #0ea;
 .main {
   .suduko {
@@ -184,7 +197,7 @@ $canSolveBG: #0ea;
 }
 </style>
 <script>
-import { reactive, ref, watchEffect, watch } from "vue";
+import { reactive, ref, watchEffect, watch } from "vue"
 import {
   NEEDRESOLVE,
   A91,
@@ -201,19 +214,19 @@ import {
   AllNum,
   VALUE_4Hang_ITEM_Flat,
   merge,
-  exports
-} from "./sdk.js";
-window.q = [];
+  exports,
+} from "./sdk.js"
+window.q = []
 
 export default {
   setup() {
-    let hoverValue = reactive({ x: "" });
-    let SUDUKO = ref();
-    let x = ref(1);
-    const flashN = ref(0);
+    let hoverValue = reactive({ x: "" })
+    let SUDUKO = ref()
+    let x = ref(1)
+    const flashN = ref(0)
     function flash(func) {
-      func();
-      flashN.value++;
+      func()
+      flashN.value++
     }
     // watchEffect(() => {
     //   // flashN.value;
@@ -227,26 +240,26 @@ export default {
     // });
 
     function gene(flex) {
-      const index = flex2index(flex);
-      const data = VALUE_4Hang_ITEM_Flat[index];
+      const index = flex2index(flex)
+      const data = VALUE_4Hang_ITEM_Flat[index]
       if (data.maybe.length > 1) {
-        var clsItem = "needSolve";
+        var clsItem = "needSolve"
       }
       if (data.maybe.length === 1) {
-        var clsItem = "canSolve";
+        var clsItem = "canSolve"
       }
       if (data.maybe.length === 0) {
-        var clsItem = "hasSolve";
+        var clsItem = "hasSolve"
       }
       // if (data.resolveByAdcanceValue?.ll) {
       //   var clsItem = "canSolveByAdvance";
       // }
-      var clsMaybe = data.maybe.map(e => "m" + e);
+      var clsMaybe = data.maybe.map(e => "m" + e)
       return {
         ...data,
         clsItem,
-        clsMaybe
-      };
+        clsMaybe,
+      }
     }
     return {
       A91,
@@ -267,22 +280,22 @@ export default {
       flashN,
       gene,
       shortcut,
-      exports
-    };
-  }
-};
+      exports,
+    }
+  },
+}
 function itemClick(e, hoverValue, [S, I]) {
   if (e.currentTarget.classList.contains("hasSolve")) {
-    hoverValue.x = e.currentTarget.innerText;
+    hoverValue.x = e.currentTarget.innerText
   } else {
-    hoverValue.x = "";
+    hoverValue.x = ""
   }
-  const flex = [S, I].ll;
-  const index = flex2index(flex).ll;
-  index2pos[index].ll;
+  const flex = [S, I].ll
+  const index = flex2index(flex).ll
+  index2pos[index].ll
 }
 function shortcut(e, hoverValue) {
-  hoverValue.x = e.currentTarget.innerText;
+  hoverValue.x = e.currentTarget.innerText
 }
 // if (0) asas//不报错??
 
@@ -317,4 +330,3 @@ function shortcut(e, hoverValue) {
 //需要深刻理解row,col,1+,0+
 //2个问题需要搞清楚 0+/1+?  ''?
 </script>
-
