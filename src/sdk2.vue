@@ -1,37 +1,36 @@
 <template>
   <div class="main">
-    <div class="suduko" v-if="0">
+    <div class="suduko" v-if="1">
       <!-- todo 三层vfor嵌套优化成三层组件嵌套? -->
       <div class="squre" v-for="S in [0, 1, 2, 3, 4, 5, 6, 7, 8]" :key="S">
         <div
           v-for="I in [0, 1, 2, 3, 4, 5, 6, 7, 8]"
-          :justAHack="(SUDUKO = gene([S, I]),'')"
+          :justAHack="(SDKItem = gene([S, I]),'')"
           :class="[
             'item',
-            SUDUKO.clsItem,
+            SDKItem.clsItem,
             {
               selected:
-                clickValue.clickValue === String(SUDUKO.ItemMayBeValue) &&
-                !Array.isArray(SUDUKO.ItemMayBeValue),
+                clickValue.clickValue === String(SDKItem.maybes) &&
+                !Array.isArray(SDKItem.maybes),
             },
           ]"
           :key="I"
           @click="e => clickItem(e, clickValue)"
         >
           <!-- todo 下面两个dom结构优化合成一个 vfor, 如果是isValue, css控制提升 -->
-          <span v-if="isValue(SUDUKO)">{{ SUDUKO.ItemMayBeValue }}</span>
+          <span v-if="isValue(SDKItem)">{{ SDKItem.maybes }}</span>
           <div
             v-else
             :class="[
               'maybe',
-              SUDUKO.clsMaybe,
+              SDKItem.clsMaybe,
               { selected: clickValue.clickValue === maybe },
+              {canSolve:maybe === String(SDKItem.l2)}
             ]"
             v-for="maybe in ['1', '2', '3', '4', '5', '6', '7', '8', '9']"
             :key="maybe"
-          >
-            {{ maybe }}
-          </div>
+          >{{ maybe }}</div>
         </div>
       </div>
     </div>
@@ -76,8 +75,12 @@ $selected: #ff7f50;
         // transition: all 0.1s;
         &:hover {
           background: $selected !important;
+          .maybe {
+            background: $selected;
+          }
         }
-        &.canSolve {
+        &.canSolve,
+        & .canSolve {
           background: $canSolveBG;
         }
         &.needSolve {
@@ -174,24 +177,26 @@ import { reactive, ref, watchEffect, watch } from "vue"
 import { SDK_AREA, isValue, isMaybe } from "./sdk2.js"
 export default {
   setup() {
-    const SUDUKO = ref()
+    const SDKItem = ref()
     const clickValue = reactive({ clickValue: "" })
     return { gene, isValue, clickItem, clickValue }
-  },
+  }
 }
 
 function gene([S, I]) {
   // "x".ll
   const item = SDK_AREA[S][I]
-  const ItemMayBeValue = item.ItemMayBeValue
+  const maybes = item.maybes
   let clsItem = "hasSolve"
-  if (isMaybe(item)) {
-    clsItem = ItemMayBeValue.length == 1 ? "canSolve" : "needSolve"
+  const isMb = isMaybe(item)
+  if (isMb) {
+    clsItem = maybes.length == 1 ? "canSolve" : "needSolve"
   }
   return {
-    ItemMayBeValue,
+    maybes,
     clsItem,
-    clsMaybe: isMaybe(item) && ItemMayBeValue.map(e => "m" + e),
+    clsMaybe: isMb && maybes.map(e => "m" + e),
+    l2: item.l2
   }
 }
 function clickItem(e, clickValue) {
