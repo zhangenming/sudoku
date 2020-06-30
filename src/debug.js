@@ -1,3 +1,20 @@
+export function isValue(item) {
+  return !Array.isArray(item.maybes)
+}
+export function isMaybe(item) {
+  return Array.isArray(item.maybes)
+}
+export function string2value(STR) {
+  return (
+    STR &&
+    STR.split("").reduce((all, now, index) => {
+      const n = Math.floor(index / 9)
+      all[n] || (all[n] = [])
+      all[n].push(Number(now))
+      return all
+    }, [])
+  )
+}
 Object.defineProperties(Object.prototype, {
   ll: {
     get() {
@@ -90,3 +107,17 @@ function getTheBestTime(func) {
   times.sort()[0].ll
   console.timeEnd()
 }
+
+function test(funcs) {
+  funcs.forEach(f => {
+    console.time(f.name)
+    ;[...Array(11000)].forEach(f)
+    console.timeEnd(f.name)
+  })
+}
+// test(
+//   [
+//     () => [...SDK_HANG, ...SDK_LIE, ...SDK_AREA].forEach(basic),
+//     () => [...SDK_HANG, ...SDK_LIE, ...SDK_AREA].forEach(basicMB3),
+//   ]
+// )
