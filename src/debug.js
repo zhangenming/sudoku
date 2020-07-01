@@ -15,9 +15,13 @@ export function string2value(STR) {
     }, [])
   )
 }
+var count = 0
 Object.defineProperties(Object.prototype, {
   ll: {
     get() {
+      if (count++ > 1000) {
+        return console.log("log超载")
+      }
       console.log(
         "%cDEBUG",
         "color: #fff; background: green;padding:0 5px ",
@@ -89,23 +93,34 @@ function time(key) {
   performance.now() - now
   return obj
 }
-document.onclick = () => {
-  ;(11).ll
-  getTheBestTime(function name(params) {
-    console.log(1)
-  })
-}
 
-function getTheBestTime(func) {
-  console.time()
-  const times = []
-  ;[...Array(22)].map(() => {
-    const n = performance.now()
-    func()
-    times.push(performance.now() - n)
+export function getTheBestTime(funcs, N = 1e5) {
+  console.log("start")
+
+  const map = [...Array(N)]
+
+  //限定次数/限定时间
+  //自身执行时间?
+  funcs.map(func => {
+    console.time()
+    const times = []
+    map.map(() => {
+      const n = performance.now()
+      ;[...Array(111)].map(func)
+      times.push(performance.now() - n)
+    })
+    //   8149: 0.004999994416721165
+    times.sort()
+    //   times.sort().filter(e => e == 0).length.ll //耗时0数量占比
+    //   times.sort().splice(-(N / 2)) //丢弃1/5最大值
+    const all = times.reduce((q, w) => q + w)
+    console.log({
+      min: times[0].toFixed(3),
+      avg: (all / times.length).toFixed(5),
+      all: Number(all.toFixed(5)),
+    })
+    console.timeEnd()
   })
-  times.sort()[0].ll
-  console.timeEnd()
 }
 
 function test(funcs) {
@@ -121,3 +136,5 @@ function test(funcs) {
 //     () => [...SDK_HANG, ...SDK_LIE, ...SDK_AREA].forEach(basicMB3),
 //   ]
 // )
+
+//////////   last item: args.pop() or [...args].pop()

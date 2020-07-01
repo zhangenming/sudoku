@@ -1,9 +1,11 @@
-import { isValue, isMaybe, string2value } from "./debug.js"
-export { isValue, isMaybe } from "./debug.js"
-const STR =
-  "600007001070400000010000500008050307390020015105030800002000030000008090400600008"
-
+import { isValue, isMaybe, string2value, getTheBestTime } from "./debug.js"
+export { SDK_AREA }
 console.clear()
+
+const STR =
+  "802610000000004300940720000510000600600040008007000012000071039005400000000062801"
+
+;(44).ll
 const A3 = [...Array(3).keys()]
 const A9 = [...Array(9).keys()]
 const A9start1 = [...A9].map(e => e + 1)
@@ -28,25 +30,14 @@ function flex2index([H, L]) {
   return (
     (Math.floor(H / 3) * 3 + Math.floor(L / 3)) * 9 + ((H % 3) * 3 + (L % 3))
   )
+  function flex2index([H, L]) {
+    return index2flex.map(e => "" + e).findIndex(e => e === `${H},${L}`)
+  }
 }
-// ;[
-//   [2, 1, 6, 0, 8, 0, 9, 5, 7],
-//   [7, 8, 9, 0, 1, 0, 0, 0, 3],
-//   [5, 4, 0, 2, 9, 7, 0, 1, 6],
-//   [6, 7, 0, 0, 3, 5, 0, 9, 4],
-//   [4, 0, 8, 9, 6, 1, 7, 0, 5],
-//   [9, 5, 0, 0, 4, 2, 0, 6, 8],
-//   [1, 6, 0, 4, 2, 8, 0, 3, 9],
-//   [0, 9, 4, 0, 5, 0, 0, 0, 2],
-//   [3, 2, 5, 0, 7, 0, 4, 8, 1],
-// ].map((_, H, A) =>
-//   _.map(
-//     (_, L) =>
-//       A[Math.floor(H / 3) * 3 + Math.floor(L / 3)][(H % 3) * 3 + (L % 3)]
-//     //       A.flat()[Math.floor(H / 3) * 27 + Math.floor(L / 3) * 9 + (H % 3) * 3 + (L % 3)]
-//   )
-// )
 
+function index2pos(index) {
+  return [index % 9, Math.floor(index / 9)] //[x,y]
+}
 function hang2lie() {
   return A9.map(x => A9.map(y => SDK[y][x]))
 }
@@ -71,26 +62,37 @@ const VALUE = string2value(STR) || [
   [0, 9, 4, 0, 5, 0, 0, 0, 2],
   [3, 2, 5, 0, 7, 0, 4, 8, 1],
 ]
-
-export const SDK = VALUE.map((e, H) =>
-  e.map((value, L) => {
-    const index = H * 9 + L
-    const [A, a] = index2flex[index]
-    return {
-      maybes: value === 0 ? [...A9start1] : value,
-      H,
-      L,
-      A,
-      a,
-      index,
-    }
-  })
-).ll
+const SDK = VALUE.map(e => e.map(value => ({ value })))
 const SDK_FLAT = SDK.flat()
-
 const SDK_HANG = (window.SDK = SDK)
 const SDK_LIE = hang2lie()
-export const SDK_AREA = hang2area()
+const SDK_AREA = hang2area()
+
+SDK_FLAT.forEach((item, index) => {
+  const value = item.value
+  const [H, L] = index2pos(index)
+  const [A, a] = index2flex[index]
+  const items = [
+    ...new Set([...SDK_HANG[H], ...SDK_LIE[L], ...SDK_AREA[A]]),
+    // ...new Set([SDK_HANG[H], SDK_LIE[L], SDK_AREA[A]].flat()),
+  ]
+  Object.assign(item, {
+    //另有一个本来的字段value
+    maybes: value === 0 ? [...A9start1] : [],
+    value,
+    maybes: value === 0 ? [...A9start1] : value, //twoInOne
+    // H: [H, L],
+    // L: [L, H],
+    // A: [A, a],
+    H,
+    L,
+    A,
+    a,
+    index,
+    items,
+  })
+})
+
 const ALL = [...SDK_HANG, ...SDK_LIE, ...SDK_AREA] //各种重复,3遍
 
 function basic(group) {
@@ -111,7 +113,7 @@ function basic(group) {
   }
 }
 
-function level2(group = SDK_AREA[8]) {
+function level2(group) {
   group
     .filter(isMaybe)
     .reduce(
@@ -130,7 +132,18 @@ function level2(group = SDK_AREA[8]) {
     })
   //代码很脏 逻辑混乱 以前是怎么写的?忘了...
 }
-
+setTimeout(() => {
+  SDK_AREA[1].filter(isMaybe).reduce(
+    (all, now) => {
+      now.maybes.forEach(maybe => {
+        all[maybe].cell.push(now.a)
+        all[maybe].item = now
+      })
+      return all
+    },
+    A10.map(e => ({ e, cell: [] }))
+  ).ll
+})
 function merge(level = 1) {
   SDK_FLAT.forEach(e => {
     if (e.maybes.length === 1) {
@@ -149,6 +162,22 @@ function compute(level = 1) {
 }
 
 compute(2) //init
+merge(2)
+compute(2)
+merge(2)
+compute(2)
+merge(2)
+compute(2)
+merge(2)
+compute(2)
+merge(2)
+compute(2)
+merge(2)
+compute(2)
+merge(2)
+compute(2)
+merge(2)
+compute(2)
 merge(2)
 compute(2)
 merge(2)

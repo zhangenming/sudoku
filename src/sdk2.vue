@@ -174,7 +174,8 @@ $selected: #ff7f50;
 </style>
 <script>
 import { reactive, ref, watchEffect, watch } from "vue"
-import { SDK_AREA, isValue, isMaybe } from "./sdk2.js"
+import { SDK_AREA } from "./sdk2.js"
+import { isValue, isMaybe } from "./debug.js"
 export default {
   setup() {
     const SDKItem = ref()
